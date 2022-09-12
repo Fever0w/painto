@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Paint Online</title>
+
+	<script src="brain.js/browser.min.js"></script>
+
+	<style>
+		body {
+			background-color: #ffffff;
+		}
+		
+	.Toolbar {
+    float: left;
+    font-family: 'Trebuchet MS'; 
+    font-size: 14px;
+    font-variant: small-caps;
+    text-align: center;
+    background: #F2F7FE;
+    padding: 10px 15px 3px 10px;
+    margin-bottom: 1px;
+    margin-right: 1px;
+    border: 1px solid #7B899B;
+    width: auto;
+    height: 80px;
+}
+
+.Toolbar button {
+    padding: 6px;
+    margin: 7px 2px;
+    font-variant: normal;
+    font-size: 12px;
+}
+
+.CanvasContainer {
+    clear: both;
+}
+
+canvas {
+    border: 1px solid #7B899B;
+}
+
+img {
+    padding: 2px;
+    border: 2px solid #F2F7FE;
+}
+
+img:hover {
+    border: 2px groove #E4F0FE;
+    background: white;
+}
+
+
+img.Selected {
+    border: 2px groove #E4F0FE;
+}
+
+#savedCopyContainer {
+    display: none;
+}
+
+#savedCopyContainer img {
+    width: 250px;
+    height: 150px;
+}
+
+</style>
+
+</head>
+<body>
+	<div class="Toolbar">
+        - Цвет -<br>
+        <img class='color' id="redPen" src="./red.png" alt="Красная кисть" onclick="changeColor('rgb(212,21,29)', this)">
+        <img class='color' id="greenPen" src="./green.png" alt="Зеленая кисть" onclick="changeColor('rgb(131,190,61)', this)"> 
+        <img class='color' id="bluePen" src="./blue.png" alt="Синяя кисть" onclick="changeColor('rgb(0,86,166)', this)">
+        <img class='color' id="blackPen" src="./yellow.png" alt="Желтая кисть" onclick="changeColor('rgb(255,242,0)', this)">
+        <img class='color' id="blackPen" src="./black.png" alt="Черная кисть" onclick="changeColor('rgb(0,0,0)', this)">
+        <img class='color' id="blackPen" src="./white.png" alt="Белая кисть" onclick="changeColor('rgb(255,255,255)', this)">
+</div>
+<div class="Toolbar">
+        - Толщина -<br>
+        <img src="http://professorweb.ru/downloads/pen_thin.gif" alt="Тонкая кисть" onclick="changeThickness(1, this)">
+        <img src="http://professorweb.ru/downloads/pen_medium.gif" alt="Нормальная кисть" onclick="changeThickness(5, this)"> 
+        <img src="http://professorweb.ru/downloads/pen_thick.gif" alt="Толстая кисть" onclick="changeThickness(10, this)">
+</div>
+<div class="Toolbar">
+        - Операции-<br>
+        <button onclick="saveCanvas()">Сохранить содержимое холста</button>
+        <button onclick="clearCanvas()">Очистить холст</button>
+        <div id="savedCopyContainer">
+           <img id="savedImageCopy"><br>
+           Щелкните правой кнопкой мыши для сохранения ...
+        </div>
+</div>
+<div class="CanvasContainer">
+        <canvas id="drawingCanvas" width="1900" height="700"></canvas>
+</div>
+
+	<script>
+		var canvas;
+        var context;
+
+window.onload = function() {
+      canvas = document.getElementById("drawingCanvas");
+      context = canvas.getContext("2d");
+       
+      // Подключаем требуемые для рисования события
+      canvas.onmousedown = startDrawing;
+      canvas.onmouseup = stopDrawing;
+      canvas.onmouseout = stopDrawing;
+      canvas.onmousemove = draw;
+   }
+
+   var previousColorElement;
+
+function changeColor(color, imgElement)
+{
+    // 	Меняем текущий цвет рисования
+	context.strokeStyle = color;
+	
+	// Меняем стиль элемента <img>, по которому щелкнули
+	imgElement.className = "Selected";
+	
+	// Возвращаем ранее выбранный элемент <img> в нормальное состояние
+	if (previousColorElement != null)
+	   previousColorElement.className = "";
+	   
+	previousColorElement = imgElement;
+}
+// Отслеживаем элемент <img> для толщины линии, по которому ранее щелкнули
+var previousThicknessElement;
+
+function changeThickness (thickness, imgElement)
+{
+    // Изменяем текущую толщину линии
+	context.lineWidth = thickness;
+	
+	// Меняем стиль элемента <img>, по которому щелкнули
+	imgElement.className = "Selected";
+	
+	// Возвращаем ранее выбранный элемент <img> в нормальное состояние
+	if (previousThicknessElement != null)
+	   previousThicknessElement.className = "";
+	   
+	previousThicknessElement = imgElement;
+}
+function startDrawing(e) {
+	// Начинаем рисовать
+	isDrawing = true;
+	
+	// Создаем новый путь (с текущим цветом и толщиной линии) 
+	context.beginPath();
+	
+	// Нажатием левой кнопки мыши помещаем "кисть" на холст
+	context.moveTo(e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
+}
+function draw(e) {
+	if (isDrawing == true)
+	{
+	  	// Определяем текущие координаты указателя мыши
+		var x = e.pageX - canvas.offsetLeft;
+		var y = e.pageY - canvas.offsetTop;
+		
+		// Рисуем линию до новой координаты
+		context.lineTo(x, y);
+		context.stroke();
+	}
+}
+function stopDrawing() {
+    isDrawing = false;	
+}
+function clearCanvas() {
+	context.clearRect(0, 0, canvas.width, canvas.height);
+}
+	</script>
+</body>
+</html>
